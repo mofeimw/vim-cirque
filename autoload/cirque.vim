@@ -177,8 +177,8 @@ function! cirque#insane_in_the_membrane(on_vimenter) abort
         let b:cirque.cwd = getcwd()
         autocmd cirque DirChanged <buffer> if getcwd() !=# get(get(b:, 'cirque', {}), 'cwd') | Cirque | endif
     endif
-    if exists('#User#Startified')
-        doautocmd <nomodeline> User Startified
+    if exists('#User#Clowned')
+        doautocmd <nomodeline> User Clowned
     endif
     if exists('#User#CirqueReady')
         doautocmd <nomodeline> User CirqueReady
@@ -452,6 +452,7 @@ endfunction
 " Function: #center {{{1
 function! cirque#center(lines) abort
     let longest_line = max(map(copy(a:lines), 'strwidth(v:val)'))
+    let s:leftpad = repeat(" ", (winwidth(0) / 2) - (longest_line / 2) - 1)
     return map(copy(a:lines),
                 \ 'repeat(" ", (winwidth(0) / 2) - (longest_line / 2) - 1) . v:val')
 endfunction
@@ -1181,7 +1182,8 @@ let g:cirque_skiplist = extend(get(g:, 'cirque_skiplist', []), [
             \ ], 'keep')
 
 let g:cirque_padding_top = get(g:, 'cirque_padding_top', 4)
-let g:cirque_padding_left = get(g:, 'cirque_padding_left', 27)
-let s:leftpad = repeat(' ', g:cirque_padding_left)
+" let g:cirque_padding_left = get(g:, 'cirque_padding_left', 27)
+" let s:leftpad = repeat(' ', g:cirque_padding_left)
+call cirque#center(s:ascii)
 let s:fixed_column = g:cirque_padding_left + 2
 let s:batchmode = ''
