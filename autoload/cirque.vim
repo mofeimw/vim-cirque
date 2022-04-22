@@ -452,9 +452,9 @@ endfunction
 " Function: #center {{{1
 function! cirque#center(lines) abort
     let longest_line = max(map(copy(a:lines), 'strwidth(v:val)'))
-    let s:leftpad = repeat(" ", (winwidth(0) / 2) - (longest_line / 2) - 1)
-    return map(copy(a:lines),
-                \ 'repeat(" ", (winwidth(0) / 2) - (longest_line / 2) - 1) . v:val')
+    let g:cirque_padding_left = (winwidth(0) / 2) - (longest_line / 2) - 1
+
+    return map(copy(a:lines), 'repeat(" ", (winwidth(0) / 2) - (longest_line / 2) - 1) . v:val')
 endfunction
 
 " Function: s:get_lists {{{1
@@ -568,8 +568,7 @@ endfunction
 
 " Function: s:display_by_path {{{1
 function! s:display_by_path(path_prefix, path_format, use_env) abort
-    let oldfiles = call(get(g:, 'cirque_enable_unsafe') ? 's:filter_oldfiles_unsafe' : 's:filter_oldfiles',
-                \ [a:path_prefix, a:path_format, a:use_env])
+    let oldfiles = call(get(g:, 'cirque_enable_unsafe') ? 's:filter_oldfiles_unsafe' : 's:filter_oldfiles', [a:path_prefix, a:path_format, a:use_env])
 
     let entry_format = "s:leftpad .'['. index .']'. repeat(' ', (3 - strlen(index))) ."
     let entry_format .= exists('*CirqueEntryFormat') ? CirqueEntryFormat() : 'entry_path'
@@ -1182,7 +1181,7 @@ let g:cirque_skiplist = extend(get(g:, 'cirque_skiplist', []), [
             \ ], 'keep')
 
 let g:cirque_padding_top = get(g:, 'cirque_padding_top', 4)
-let g:cirque_padding_left = get(g:, 'cirque_padding_left', 27)
 call cirque#center(s:ascii)
+let s:leftpad = repeat(' ', g:cirque_padding_left)
 let s:fixed_column = g:cirque_padding_left + 2
 let s:batchmode = ''
