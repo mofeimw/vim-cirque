@@ -2,29 +2,29 @@ let s:ascii = [
             \ '                ,                                     ',
             \ '       ___ .-. c  \ o                                 ',
             \ '      /   ( ].\))   (\                                ',
-            \ '    *''| )_\/`-/   JL__                               ',
+            \ '    *''| )_\/`-/     JL__                             ',
             \ '______|_|_)_/______|___|______________________________',
             \ ]
 
-if exists('g:autoloaded_startify') || &compatible
+if exists('g:autoloaded_cirque') || &compatible
     finish
 endif
-let g:autoloaded_startify = 1
+let g:autoloaded_cirque = 1
 
 " Function: #get_lastline {{{1
-function! startify#get_lastline() abort
-    return b:startify.lastline + 1
+function! cirque#get_lastline() abort
+    return b:cirque.lastline + 1
 endfunction
 
 " Function: #get_separator {{{1
-function! startify#get_separator() abort
+function! cirque#get_separator() abort
     return !exists('+shellslash') || &shellslash ? '/' : '\'
 endfunction
 
 " Function: #get_session_path {{{1
-function! startify#get_session_path() abort
-    if exists('g:startify_session_dir')
-        let path = g:startify_session_dir
+function! cirque#get_session_path() abort
+    if exists('g:cirque_session_dir')
+        let path = g:cirque_session_dir
     elseif has('nvim')
         let path = has('nvim-0.3.1')
                     \ ? stdpath('data').'/session'
@@ -41,7 +41,7 @@ function! startify#get_session_path() abort
 endfunction
 
 " Function: #insane_in_the_membrane {{{1
-function! startify#insane_in_the_membrane(on_vimenter) abort
+function! cirque#insane_in_the_membrane(on_vimenter) abort
     " Handle vim -y, vim -M.
     if a:on_vimenter && (&insertmode || !&modifiable)
         return
@@ -52,8 +52,8 @@ function! startify#insane_in_the_membrane(on_vimenter) abort
         return
     endif
 
-    if !empty(v:servername) && exists('g:startify_skiplist_server')
-        for servname in g:startify_skiplist_server
+    if !empty(v:servername) && exists('g:cirque_skiplist_server')
+        for servname in g:cirque_skiplist_server
             if servname == v:servername
                 return
             endif
@@ -82,60 +82,60 @@ function! startify#insane_in_the_membrane(on_vimenter) abort
                 \ signcolumn=no
                 \ synmaxcol&
     if empty(&statusline)
-        setlocal statusline=\ startify
+        setlocal statusline=\ cirque
     endif
 
-    " Must be global so that it can be read by syntax/startify.vim.
-    let g:startify_header = s:ascii
+    " Must be global so that it can be read by syntax/cirque.vim.
+    let g:cirque_header = s:ascii
 
     for s:i in s:ascii
         let s:ascii[index(s:ascii, s:i)] = s:leftpad . s:i
     endfor
 
     let s:z = 0
-    while s:z <= g:startify_padding_top
+    while s:z <= g:cirque_padding_top
         call insert(s:ascii, "")
         let s:z += 1
     endwhile
 
-    if !empty(g:startify_header)
-        let g:startify_header += ['']  " add blank line
+    if !empty(g:cirque_header)
+        let g:cirque_header += ['']  " add blank line
     endif
-    call append('$', g:startify_header)
+    call append('$', g:cirque_header)
 
-    let b:startify = {
+    let b:cirque = {
                 \ 'entries':   {},
                 \ 'indices':   [],
                 \ 'leftmouse': 0,
                 \ 'tick':      0,
                 \ }
 
-    if g:startify_enable_special
+    if g:cirque_enable_special
         call append('$', [s:leftpad .'[e]  <empty buffer>', ''])
     endif
     call s:register(line('$')-1, 'e', 'special', 'enew', '')
 
-    let b:startify.entry_number = 0
+    let b:cirque.entry_number = 0
     if filereadable('Session.vim')
         call append('$', [s:leftpad .'[0]  '. getcwd() . s:sep .'Session.vim', ''])
         call s:register(line('$')-1, '0', 'session',
-                    \ 'call startify#session_delete_buffers() | source', 'Session.vim')
-        let b:startify.entry_number = 1
+                    \ 'call cirque#session_delete_buffers() | source', 'Session.vim')
+        let b:cirque.entry_number = 1
         let l:show_session = 1
     endif
 
     if empty(v:oldfiles)
-        call s:warn("Can't read viminfo file. Read :help startify-faq-02")
+        call s:warn("Can't read viminfo file. Read :help cirque-faq-02")
     endif
 
-    let b:startify.section_header_lines = []
+    let b:cirque.section_header_lines = []
 
     let lists = s:get_lists()
     call s:show_lists(lists)
 
     silent $delete _
 
-    if g:startify_enable_special
+    if g:cirque_enable_special
         call append('$', ['', s:leftpad .'[q]  <quit>'])
         call s:register(line('$'), 'q', 'special', 'call s:close()', '')
     else
@@ -144,17 +144,17 @@ function! startify#insane_in_the_membrane(on_vimenter) abort
     endif
 
     " compute first line offset
-    let b:startify.firstline = 2
-    let b:startify.firstline += len(g:startify_header)
+    let b:cirque.firstline = 2
+    let b:cirque.firstline += len(g:cirque_header)
     " no special, no local Session.vim, but a section header
-    if !g:startify_enable_special && !exists('l:show_session') && has_key(lists[0], 'header')
-        let b:startify.firstline += len(lists[0].header) + 1
+    if !g:cirque_enable_special && !exists('l:show_session') && has_key(lists[0], 'header')
+        let b:cirque.firstline += len(lists[0].header) + 1
     endif
 
-    let b:startify.lastline = line('$')
+    let b:cirque.lastline = line('$')
 
-    let footer = exists('g:startify_custom_footer')
-                \ ? s:set_custom_section(g:startify_custom_footer)
+    let footer = exists('g:cirque_custom_footer')
+                \ ? s:set_custom_section(g:cirque_custom_footer)
                 \ : []
     if !empty(footer)
         let footer = [''] + footer
@@ -166,31 +166,31 @@ function! startify#insane_in_the_membrane(on_vimenter) abort
     call s:hide_endofbuffer_markers()
 
     call s:set_mappings()
-    call cursor(b:startify.firstline, 5)
-    autocmd startify CursorMoved <buffer> call s:set_cursor()
+    call cursor(b:cirque.firstline, 5)
+    autocmd cirque CursorMoved <buffer> call s:set_cursor()
 
     silent! %foldopen!
     normal! zb
-    set filetype=startify
+    set filetype=cirque
 
     if exists('##DirChanged')
-        let b:startify.cwd = getcwd()
-        autocmd startify DirChanged <buffer> if getcwd() !=# get(get(b:, 'startify', {}), 'cwd') | Startify | endif
+        let b:cirque.cwd = getcwd()
+        autocmd cirque DirChanged <buffer> if getcwd() !=# get(get(b:, 'cirque', {}), 'cwd') | Cirque | endif
     endif
     if exists('#User#Startified')
         doautocmd <nomodeline> User Startified
     endif
-    if exists('#User#StartifyReady')
-        doautocmd <nomodeline> User StartifyReady
+    if exists('#User#CirqueReady')
+        doautocmd <nomodeline> User CirqueReady
     endif
 endfunction
 
 " Function: #session_load {{{1
-function! startify#session_load(source_last_session, ...) abort
+function! cirque#session_load(source_last_session, ...) abort
     if !isdirectory(s:session_dir)
         echomsg 'The session directory does not exist: '. s:session_dir
         return
-    elseif empty(startify#session_list_as_string(''))
+    elseif empty(cirque#session_list_as_string(''))
         echomsg 'There are no sessions...'
         return
     endif
@@ -206,15 +206,15 @@ function! startify#session_load(source_last_session, ...) abort
         let session_path .= input(
                     \ 'Load this session: ',
                     \ fnamemodify(v:this_session, ':t'),
-                    \ 'custom,startify#session_list_as_string') | redraw
+                    \ 'custom,cirque#session_list_as_string') | redraw
         call inputrestore()
     endif
 
     if filereadable(session_path)
-        if get(g:, 'startify_session_persistence') && filewritable(v:this_session)
-            call startify#session_write(fnameescape(v:this_session))
+        if get(g:, 'cirque_session_persistence') && filewritable(v:this_session)
+            call cirque#session_write(fnameescape(v:this_session))
         endif
-        call startify#session_delete_buffers()
+        call cirque#session_delete_buffers()
         execute 'source '. fnameescape(session_path)
         call s:create_last_session_link(session_path)
     else
@@ -223,7 +223,7 @@ function! startify#session_load(source_last_session, ...) abort
 endfunction
 
 " Function: #session_save {{{1
-function! startify#session_save(bang, ...) abort
+function! cirque#session_save(bang, ...) abort
     if !isdirectory(s:session_dir)
         if exists('*mkdir')
             echo 'The session directory does not exist: '. s:session_dir .'. Create it?  [y/n]'
@@ -246,7 +246,7 @@ function! startify#session_save(bang, ...) abort
     endif
     let session_name = exists('a:1')
                 \ ? a:1
-                \ : input('Save under this session name: ', this_session, 'custom,startify#session_list_as_string') | redraw
+                \ : input('Save under this session name: ', this_session, 'custom,cirque#session_list_as_string') | redraw
     call inputrestore()
 
     if empty(session_name)
@@ -256,14 +256,14 @@ function! startify#session_save(bang, ...) abort
 
     let session_path = s:session_dir . s:sep . session_name
     if !filereadable(session_path)
-        call startify#session_write(fnameescape(session_path))
+        call cirque#session_write(fnameescape(session_path))
         echo 'Session saved under: '. session_path
         return
     endif
 
     echo 'Session already exists. Overwrite?  [y/n]' | redraw
     if a:bang || nr2char(getchar()) == 'y'
-        call startify#session_write(fnameescape(session_path))
+        call cirque#session_write(fnameescape(session_path))
         echo 'Session saved under: '. session_path
     else
         echo 'Did NOT save the session!'
@@ -271,26 +271,26 @@ function! startify#session_save(bang, ...) abort
 endfunction
 
 " Function: #session_close {{{1
-function! startify#session_close() abort
+function! cirque#session_close() abort
     if exists('v:this_session') && filewritable(v:this_session)
-        call startify#session_write(fnameescape(v:this_session))
+        call cirque#session_write(fnameescape(v:this_session))
         let v:this_session = ''
     endif
-    call startify#session_delete_buffers()
-    Startify
+    call cirque#session_delete_buffers()
+    Cirque
 endfunction
 
 " Function: #session_write {{{1
-function! startify#session_write(session_path)
+function! cirque#session_write(session_path)
     " preserve existing variables from savevars
-    if exists('g:startify_session_savevars')
-        let savevars = map(filter(copy(g:startify_session_savevars), 'exists(v:val)'), '"let ". v:val ." = ". strtrans(string(eval(v:val)))')
+    if exists('g:cirque_session_savevars')
+        let savevars = map(filter(copy(g:cirque_session_savevars), 'exists(v:val)'), '"let ". v:val ." = ". strtrans(string(eval(v:val)))')
     endif
 
-    " if this function is called while being in the Startify buffer
+    " if this function is called while being in the Cirque buffer
     " (by loading another session or running :SSave/:SLoad directly)
     " switch back to the previous buffer before saving the session
-    if &filetype == 'startify'
+    if &filetype == 'cirque'
         let callingbuffer = bufnr('#')
         if callingbuffer > 0
             execute 'buffer' callingbuffer
@@ -303,7 +303,7 @@ function! startify#session_write(session_path)
         endif
     endfor
     " clean up session before saving it
-    for cmd in get(g:, 'startify_session_before_save', [])
+    for cmd in get(g:, 'cirque_session_before_save', [])
         execute cmd
     endfor
 
@@ -320,14 +320,14 @@ function! startify#session_write(session_path)
         let &sessionoptions = ssop
     endtry
 
-    if exists('g:startify_session_remove_lines')
-                \ || exists('g:startify_session_savevars')
-                \ || exists('g:startify_session_savecmds')
+    if exists('g:cirque_session_remove_lines')
+                \ || exists('g:cirque_session_savevars')
+                \ || exists('g:cirque_session_savecmds')
         silent execute 'split' a:session_path
 
         " remove lines from the session file
-        if exists('g:startify_session_remove_lines')
-            for pattern in g:startify_session_remove_lines
+        if exists('g:cirque_session_remove_lines')
+            for pattern in g:cirque_session_remove_lines
                 execute 'silent global/'. pattern .'/delete _'
             endfor
         endif
@@ -338,8 +338,8 @@ function! startify#session_write(session_path)
         endif
 
         " put commands from savecmds into session file
-        if exists('g:startify_session_savecmds')
-            call append(line('$')-3, g:startify_session_savecmds)
+        if exists('g:cirque_session_savecmds')
+            call append(line('$')-3, g:cirque_session_savecmds)
         endif
 
         setlocal bufhidden=delete
@@ -351,11 +351,11 @@ function! startify#session_write(session_path)
 endfunction
 
 " Function: #session_delete {{{1
-function! startify#session_delete(bang, ...) abort
+function! cirque#session_delete(bang, ...) abort
     if !isdirectory(s:session_dir)
         echo 'The session directory does not exist: '. s:session_dir
         return
-    elseif empty(startify#session_list_as_string(''))
+    elseif empty(cirque#session_list_as_string(''))
         echo 'There are no sessions...'
         return
     endif
@@ -363,7 +363,7 @@ function! startify#session_delete(bang, ...) abort
     call inputsave()
     let session_path = s:session_dir . s:sep . (exists('a:1')
                 \ ? a:1
-                \ : input('Delete this session: ', fnamemodify(v:this_session, ':t'), 'custom,startify#session_list_as_string'))
+                \ : input('Delete this session: ', fnamemodify(v:this_session, ':t'), 'custom,cirque#session_list_as_string'))
     call inputrestore()
 
     if !filereadable(session_path)
@@ -384,48 +384,48 @@ function! startify#session_delete(bang, ...) abort
 endfunction
 
 " Function: #session_delete_buffers {{{1
-function! startify#session_delete_buffers()
-    if get(g:, 'startify_session_delete_buffers', 1)
+function! cirque#session_delete_buffers()
+    if get(g:, 'cirque_session_delete_buffers', 1)
         silent! %bdelete!
     endif
 endfunction
 
 " Function: #session_list {{{1
-function! startify#session_list(lead, ...) abort
+function! cirque#session_list(lead, ...) abort
     return filter(map(split(globpath(s:session_dir, '*'.a:lead.'*'), '\n'), 'fnamemodify(v:val, ":t")'), 'v:val !=# "__LAST__"')
 endfunction
 
 " Function: #session_list_as_string {{{1
-function! startify#session_list_as_string(lead, ...) abort
+function! cirque#session_list_as_string(lead, ...) abort
     return join(filter(map(split(globpath(s:session_dir, '*'.a:lead.'*'), '\n'), 'fnamemodify(v:val, ":t")'), 'v:val !=# "__LAST__"'), "\n")
 endfunction
 
 " Function: #debug {{{1
-function! startify#debug()
-    if exists('b:startify.entries')
-        for k in sort(keys(b:startify.entries))
-            echomsg '['. k .'] = '. string(b:startify.entries[k])
+function! cirque#debug()
+    if exists('b:cirque.entries')
+        for k in sort(keys(b:cirque.entries))
+            echomsg '['. k .'] = '. string(b:cirque.entries[k])
         endfor
     else
-        call s:warn('This is no Startify buffer!')
+        call s:warn('This is no Cirque buffer!')
     endif
 endfunction
 
 " Function: #open_buffers {{{1
-function! startify#open_buffers(...) abort
+function! cirque#open_buffers(...) abort
     if exists('a:1')  " used in mappings
-        let entry = b:startify.entries[a:1]
+        let entry = b:cirque.entries[a:1]
         if !empty(s:batchmode) && entry.type == 'file'
-            call startify#set_mark(s:batchmode, a:1)
+            call cirque#set_mark(s:batchmode, a:1)
         else
             call s:open_buffer(entry)
         endif
         return
     endif
 
-    let marked = filter(copy(b:startify.entries), 'v:val.marked')
+    let marked = filter(copy(b:cirque.entries), 'v:val.marked')
     if empty(marked)  " open current entry
-        call s:open_buffer(b:startify.entries[line('.')])
+        call s:open_buffer(b:cirque.entries[line('.')])
         return
     endif
 
@@ -439,18 +439,18 @@ function! startify#open_buffers(...) abort
 
     wincmd =
 
-    if exists('#User#StartifyAllBuffersOpened')
-        doautocmd <nomodeline> User StartifyAllBuffersOpened
+    if exists('#User#CirqueAllBuffersOpened')
+        doautocmd <nomodeline> User CirqueAllBuffersOpened
     endif
 endfunction
 
 " Function: #pad {{{1
-function! startify#pad(lines) abort
+function! cirque#pad(lines) abort
     return map(copy(a:lines), 's:leftpad . v:val')
 endfunction
 
 " Function: #center {{{1
-function! startify#center(lines) abort
+function! cirque#center(lines) abort
     let longest_line = max(map(copy(a:lines), 'strwidth(v:val)'))
     return map(copy(a:lines),
                 \ 'repeat(" ", (winwidth(0) / 2) - (longest_line / 2) - 1) . v:val')
@@ -458,12 +458,12 @@ endfunction
 
 " Function: s:get_lists {{{1
 function! s:get_lists() abort
-    if exists('g:startify_lists')
-        return g:startify_lists
-    elseif exists('g:startify_list_order')
-        " Convert old g:startify_list_order format to newer g:startify_lists format.
+    if exists('g:cirque_lists')
+        return g:cirque_lists
+    elseif exists('g:cirque_list_order')
+        " Convert old g:cirque_list_order format to newer g:cirque_lists format.
         let lists = []
-        for item in g:startify_list_order
+        for item in g:cirque_list_order
             if type(item) == type([])
                 let header = item
             else
@@ -494,7 +494,7 @@ function! s:show_lists(lists) abort
             continue
         endif
 
-        let b:startify.indices = copy(get(list, 'indices', []))
+        let b:cirque.indices = copy(get(list, 'indices', []))
 
         if type(list.type) == type('')
             if has_key(list, 'header')
@@ -528,7 +528,7 @@ function! s:show_lists(lists) abort
             endfor
             call append('$', '')
         else
-            call s:warn('Wrong format for g:startify_lists: '. string(list))
+            call s:warn('Wrong format for g:cirque_lists: '. string(list))
         endif
     endfor
 endfunction
@@ -550,8 +550,8 @@ function! s:open_buffer(entry)
         endif
         call s:check_user_options(a:entry.path)
     endif
-    if exists('#User#StartifyBufferOpened')
-        doautocmd <nomodeline> User StartifyBufferOpened
+    if exists('#User#CirqueBufferOpened')
+        doautocmd <nomodeline> User CirqueBufferOpened
     endif
 endfunction
 
@@ -567,11 +567,11 @@ endfunction
 
 " Function: s:display_by_path {{{1
 function! s:display_by_path(path_prefix, path_format, use_env) abort
-    let oldfiles = call(get(g:, 'startify_enable_unsafe') ? 's:filter_oldfiles_unsafe' : 's:filter_oldfiles',
+    let oldfiles = call(get(g:, 'cirque_enable_unsafe') ? 's:filter_oldfiles_unsafe' : 's:filter_oldfiles',
                 \ [a:path_prefix, a:path_format, a:use_env])
 
     let entry_format = "s:leftpad .'['. index .']'. repeat(' ', (3 - strlen(index))) ."
-    let entry_format .= exists('*StartifyEntryFormat') ? StartifyEntryFormat() : 'entry_path'
+    let entry_format .= exists('*CirqueEntryFormat') ? CirqueEntryFormat() : 'entry_path'
 
     if !empty(oldfiles)
         if exists('s:last_message')
@@ -594,7 +594,7 @@ endfunction
 " Function: s:filter_oldfiles {{{1
 function! s:filter_oldfiles(path_prefix, path_format, use_env) abort
     let path_prefix = '\V'. escape(a:path_prefix, '\')
-    let counter     = g:startify_files_number
+    let counter     = g:cirque_files_number
     let entries     = {}
     let oldfiles    = []
 
@@ -604,7 +604,7 @@ function! s:filter_oldfiles(path_prefix, path_format, use_env) abort
         endif
 
         if s:is_in_skiplist(fname)
-            " https://github.com/mhinz/vim-startify/issues/353
+            " https://github.com/mhinz/vim-cirque/issues/353
             continue
         endif
 
@@ -623,7 +623,7 @@ function! s:filter_oldfiles(path_prefix, path_format, use_env) abort
         endif
 
         let entry_path = ''
-        if !empty(g:startify_transformations)
+        if !empty(g:cirque_transformations)
             let entry_path = s:transform(absolute_path)
         endif
         if empty(entry_path)
@@ -654,7 +654,7 @@ endfunction
 " Function: s:filter_oldfiles_unsafe {{{1
 function! s:filter_oldfiles_unsafe(path_prefix, path_format, use_env) abort
     let path_prefix = '\V'. escape(a:path_prefix, '\')
-    let counter     = g:startify_files_number
+    let counter     = g:cirque_files_number
     let entries     = {}
     let oldfiles    = []
     let is_dir      = escape(s:sep, '\') . '$'
@@ -665,7 +665,7 @@ function! s:filter_oldfiles_unsafe(path_prefix, path_format, use_env) abort
         endif
 
         if s:is_in_skiplist(fname)
-            " https://github.com/mhinz/vim-startify/issues/353
+            " https://github.com/mhinz/vim-cirque/issues/353
             continue
         endif
 
@@ -694,12 +694,12 @@ endfunction
 
 " Function: s:show_files {{{1
 function! s:show_files() abort
-    return s:display_by_path('', g:startify_relative_path, get(g:, 'startify_use_env'))
+    return s:display_by_path('', g:cirque_relative_path, get(g:, 'cirque_use_env'))
 endfunction
 
 " Function: s:show_sessions {{{1
 function! s:show_sessions() abort
-    let limit = get(g:, 'startify_session_number', 999) - 1
+    let limit = get(g:, 'cirque_session_number', 999) - 1
     if limit <= -1
         return
     endif
@@ -719,7 +719,7 @@ function! s:show_sessions() abort
         call s:print_section_header()
     endif
 
-    if get(g:, 'startify_session_sort')
+    if get(g:, 'cirque_session_sort')
         function! s:sort_by_mtime(foo, bar)
             let foo = getftime(a:foo)
             let bar = getftime(a:bar)
@@ -747,7 +747,7 @@ endfunction
 
 " Function: s:show_bookmarks {{{1
 function! s:show_bookmarks() abort
-    if !exists('g:startify_bookmarks') || empty(g:startify_bookmarks)
+    if !exists('g:cirque_bookmarks') || empty(g:cirque_bookmarks)
         return
     endif
 
@@ -756,9 +756,9 @@ function! s:show_bookmarks() abort
     endif
 
     let entry_format = "s:leftpad .'['. index .']'. repeat(' ', (3 - strlen(index))) ."
-    let entry_format .= exists('*StartifyEntryFormat') ? StartifyEntryFormat() : 'entry_path'
+    let entry_format .= exists('*CirqueEntryFormat') ? CirqueEntryFormat() : 'entry_path'
 
-    for bookmark in g:startify_bookmarks
+    for bookmark in g:cirque_bookmarks
         if type(bookmark) == type({})
             let [index, path] = items(bookmark)[0]
         else  " string
@@ -768,7 +768,7 @@ function! s:show_bookmarks() abort
         let absolute_path = path
 
         let entry_path = ''
-        if !empty(g:startify_transformations)
+        if !empty(g:cirque_transformations)
             let entry_path = s:transform(fnamemodify(resolve(expand(path)), ':p'))
         endif
         if empty(entry_path)
@@ -790,7 +790,7 @@ endfunction
 
 " Function: s:show_commands {{{1
 function! s:show_commands() abort
-    if !exists('g:startify_commands') || empty(g:startify_commands)
+    if !exists('g:cirque_commands') || empty(g:cirque_commands)
         return
     endif
 
@@ -798,7 +798,7 @@ function! s:show_commands() abort
         call s:print_section_header()
     endif
 
-    for entry in g:startify_commands
+    for entry in g:cirque_commands
         if type(entry) == type({})  " with custom index
             let [index, command] = items(entry)[0]
         else
@@ -819,64 +819,64 @@ endfunction
 
 " Function: s:is_in_skiplist {{{1
 function! s:is_in_skiplist(arg) abort
-    for regexp in g:startify_skiplist
+    for regexp in g:cirque_skiplist
         try
             if a:arg =~# regexp
                 return 1
             endif
         catch
-            call s:warn('Pattern '. string(regexp) .' threw an exception. Read :help g:startify_skiplist')
+            call s:warn('Pattern '. string(regexp) .' threw an exception. Read :help g:cirque_skiplist')
         endtry
     endfor
 endfunction
 
 " Function: s:set_cursor {{{1
 function! s:set_cursor() abort
-    let b:startify.oldline = exists('b:startify.newline') ? b:startify.newline : s:fixed_column
-    let b:startify.newline = line('.')
+    let b:cirque.oldline = exists('b:cirque.newline') ? b:cirque.newline : s:fixed_column
+    let b:cirque.newline = line('.')
 
     " going up (-1) or down (1)
-    if b:startify.oldline == b:startify.newline
+    if b:cirque.oldline == b:cirque.newline
                 \ && col('.') != s:fixed_column
-                \ && !b:startify.leftmouse
+                \ && !b:cirque.leftmouse
         let movement = 2 * (col('.') > s:fixed_column) - 1
-        let b:startify.newline += movement
+        let b:cirque.newline += movement
     else
-        let movement = 2 * (b:startify.newline > b:startify.oldline) - 1
-        let b:startify.leftmouse = 0
+        let movement = 2 * (b:cirque.newline > b:cirque.oldline) - 1
+        let b:cirque.leftmouse = 0
     endif
 
     " skip section headers lines until an entry is found
-    while index(b:startify.section_header_lines, b:startify.newline) != -1
-        let b:startify.newline += movement
+    while index(b:cirque.section_header_lines, b:cirque.newline) != -1
+        let b:cirque.newline += movement
     endwhile
 
     " skip blank lines between lists
-    if empty(getline(b:startify.newline))
-        let b:startify.newline += movement
+    if empty(getline(b:cirque.newline))
+        let b:cirque.newline += movement
     endif
 
     " don't go beyond first or last entry
-    let b:startify.newline = max([b:startify.firstline, min([b:startify.lastline, b:startify.newline])])
+    let b:cirque.newline = max([b:cirque.firstline, min([b:cirque.lastline, b:cirque.newline])])
 
-    call cursor(b:startify.newline, s:fixed_column)
+    call cursor(b:cirque.newline, s:fixed_column)
 endfunction
 
 " Function: s:set_mappings {{{1
 function! s:set_mappings() abort
     nnoremap <buffer><nowait><silent> i             :enew <bar> startinsert<cr>
     nnoremap <buffer><nowait><silent> <insert>      :enew <bar> startinsert<cr>
-    nnoremap <buffer><nowait><silent> b             :call startify#set_mark('B')<cr>
-    nnoremap <buffer><nowait><silent> s             :call startify#set_mark('S')<cr>
-    nnoremap <buffer><nowait><silent> t             :call startify#set_mark('T')<cr>
-    nnoremap <buffer><nowait><silent> v             :call startify#set_mark('V')<cr>
-    nnoremap <buffer><nowait><silent> B             :call startify#set_batchmode('B')<cr>
-    nnoremap <buffer><nowait><silent> S             :call startify#set_batchmode('S')<cr>
-    nnoremap <buffer><nowait><silent> T             :call startify#set_batchmode('T')<cr>
-    nnoremap <buffer><nowait><silent> V             :call startify#set_batchmode('V')<cr>
-    nnoremap <buffer><nowait><silent> <cr>          :call startify#open_buffers()<cr>
+    nnoremap <buffer><nowait><silent> b             :call cirque#set_mark('B')<cr>
+    nnoremap <buffer><nowait><silent> s             :call cirque#set_mark('S')<cr>
+    nnoremap <buffer><nowait><silent> t             :call cirque#set_mark('T')<cr>
+    nnoremap <buffer><nowait><silent> v             :call cirque#set_mark('V')<cr>
+    nnoremap <buffer><nowait><silent> B             :call cirque#set_batchmode('B')<cr>
+    nnoremap <buffer><nowait><silent> S             :call cirque#set_batchmode('S')<cr>
+    nnoremap <buffer><nowait><silent> T             :call cirque#set_batchmode('T')<cr>
+    nnoremap <buffer><nowait><silent> V             :call cirque#set_batchmode('V')<cr>
+    nnoremap <buffer><nowait><silent> <cr>          :call cirque#open_buffers()<cr>
     nnoremap <buffer><nowait><silent> <LeftMouse>   :call <sid>leftmouse()<cr>
-    nnoremap <buffer><nowait><silent> <2-LeftMouse> :call startify#open_buffers()<cr>
+    nnoremap <buffer><nowait><silent> <2-LeftMouse> :call cirque#open_buffers()<cr>
     nnoremap <buffer><nowait><silent> <MiddleMouse> :enew <bar> execute 'normal! "'.(v:register=='"'?'*':v:register).'gp'<cr>
 
     " Without these mappings n/N wouldn't work properly, since autocmds always
@@ -887,7 +887,7 @@ function! s:set_mappings() abort
     function! s:leftmouse()
         " feedkeys() triggers CursorMoved which calls s:set_cursor() which checks
         " .leftmouse.
-        let b:startify.leftmouse = 1
+        let b:cirque.leftmouse = 1
         call feedkeys("\<LeftMouse>", 'nt')
     endfunction
 
@@ -895,27 +895,27 @@ function! s:set_mappings() abort
         return a:foo.index - a:bar.index
     endfunction
 
-    for entry in sort(values(b:startify.entries), 's:compare_by_index')
+    for entry in sort(values(b:cirque.entries), 's:compare_by_index')
         execute 'nnoremap <buffer><silent><nowait>' entry.index
-                    \ ':call startify#open_buffers('. string(entry.line) .')<cr>'
+                    \ ':call cirque#open_buffers('. string(entry.line) .')<cr>'
     endfor
 endfunction
 
 " Function: #set_batchmode {{{1
-function! startify#set_batchmode(batchmode) abort
+function! cirque#set_batchmode(batchmode) abort
     let s:batchmode = (a:batchmode == s:batchmode) ? '' : a:batchmode
     echo empty(s:batchmode) ? 'Batchmode off' : 'Batchmode: '. s:batchmode
 endfunction
 
 " Function: #set_mark {{{1
-function! startify#set_mark(type, ...) abort
+function! cirque#set_mark(type, ...) abort
     if a:0
         let entryline = a:1
     else
-        call startify#set_batchmode('')
+        call cirque#set_batchmode('')
         let entryline = line('.')
     endif
-    let entry = b:startify.entries[entryline]
+    let entry = b:cirque.entries[entryline]
 
     if entry.type != 'file'
         return
@@ -944,8 +944,8 @@ function! startify#set_mark(type, ...) abort
     else
         let entry.cmd = default_cmds[a:type]
         let entry.marked = 1
-        let entry.tick = b:startify.tick
-        let b:startify.tick += 1
+        let entry.tick = b:cirque.tick
+        let b:cirque.tick += 1
         execute 'normal! "_ci]'. repeat(a:type, len(index))
     endif
 
@@ -965,18 +965,18 @@ endfunction
 function! s:check_user_options(path) abort
     let session = a:path . s:sep .'Session.vim'
 
-    if get(g:, 'startify_session_autoload') && filereadable(glob(session))
+    if get(g:, 'cirque_session_autoload') && filereadable(glob(session))
         execute 'silent bwipeout' a:path
-        call startify#session_delete_buffers()
+        call cirque#session_delete_buffers()
         execute 'source' session
         return
     endif
 
-    if get(g:, 'startify_change_to_vcs_root') && s:cd_to_vcs_root(a:path)
+    if get(g:, 'cirque_change_to_vcs_root') && s:cd_to_vcs_root(a:path)
         return
     endif
 
-    if get(g:, 'startify_change_to_dir', 1)
+    if get(g:, 'cirque_change_to_dir', 1)
         if isdirectory(a:path)
             execute s:cd_cmd() a:path
         else
@@ -1005,12 +1005,12 @@ endfunction
 
 " Function: s:cd_cmd {{{1
 function! s:cd_cmd() abort
-    let g:startify_change_cmd = get(g:, 'startify_change_cmd', 'lcd')
-    if g:startify_change_cmd !~# '^[lt]\?cd$'
-        call s:warn('Invalid value for g:startify_change_cmd. Defaulting to :lcd')
-        let g:startify_change_cmd = 'lcd'
+    let g:cirque_change_cmd = get(g:, 'cirque_change_cmd', 'lcd')
+    if g:cirque_change_cmd !~# '^[lt]\?cd$'
+        call s:warn('Invalid value for g:cirque_change_cmd. Defaulting to :lcd')
+        let g:cirque_change_cmd = 'lcd'
     endif
-    return g:startify_change_cmd
+    return g:cirque_change_cmd
 endfunction
 
 " Function: s:close {{{1
@@ -1028,20 +1028,20 @@ endfunction
 
 " Function: s:get_index_as_string {{{1
 function! s:get_index_as_string() abort
-    if !empty(b:startify.indices)
-        return remove(b:startify.indices, 0)
-    elseif exists('g:startify_custom_indices')
-        let listlen = len(g:startify_custom_indices)
-        if b:startify.entry_number < listlen
-            let idx = g:startify_custom_indices[b:startify.entry_number]
+    if !empty(b:cirque.indices)
+        return remove(b:cirque.indices, 0)
+    elseif exists('g:cirque_custom_indices')
+        let listlen = len(g:cirque_custom_indices)
+        if b:cirque.entry_number < listlen
+            let idx = g:cirque_custom_indices[b:cirque.entry_number]
         else
-            let idx = string(b:startify.entry_number - listlen)
+            let idx = string(b:cirque.entry_number - listlen)
         endif
     else
-        let idx = string(b:startify.entry_number)
+        let idx = string(b:cirque.entry_number)
     endif
 
-    let b:startify.entry_number += 1
+    let b:cirque.entry_number += 1
 
     return idx
 endfunction
@@ -1052,7 +1052,7 @@ function! s:print_section_header() abort
     let curline = line('.')
 
     for lnum in range(curline, curline + len(s:last_message) + 1)
-        call add(b:startify.section_header_lines, lnum)
+        call add(b:cirque.section_header_lines, lnum)
     endfor
 
     call append('$', s:last_message + [''])
@@ -1061,7 +1061,7 @@ endfunction
 
 " Function: s:register {{{1
 function! s:register(line, index, type, cmd, path)
-    let b:startify.entries[a:line] = {
+    let b:cirque.entries[a:line] = {
                 \ 'index':  a:index,
                 \ 'type':   a:type,
                 \ 'line':   a:line,
@@ -1125,7 +1125,7 @@ endfunction
 
 " Function: s:transform {{{1
 function s:transform(absolute_path)
-    for [k,V] in g:startify_transformations
+    for [k,V] in g:cirque_transformations
         if a:absolute_path =~ k
             return type(V) == type('') ? V : V(a:absolute_path)
         endif
@@ -1145,11 +1145,11 @@ function! s:hide_endofbuffer_markers()
     if empty(val)
         return
     elseif val =~ '^\d*$'
-        execute 'highlight StartifyEndOfBuffer ctermfg='. val
+        execute 'highlight CirqueEndOfBuffer ctermfg='. val
     else
-        execute 'highlight StartifyEndOfBuffer guifg='. val
+        execute 'highlight CirqueEndOfBuffer guifg='. val
     endif
-    setlocal winhighlight=EndOfBuffer:StartifyEndOfBuffer
+    setlocal winhighlight=EndOfBuffer:CirqueEndOfBuffer
 endfunction
 
 " or just do that
@@ -1158,20 +1158,20 @@ highlight EndOfBuffer guifg=bg
 " Function: s:warn {{{1
 function! s:warn(msg) abort
     echohl WarningMsg
-    echomsg 'startify: '. a:msg
+    echomsg 'cirque: '. a:msg
     echohl NONE
 endfunction
 
 " Init: values {{{1
-let s:sep = startify#get_separator()
+let s:sep = cirque#get_separator()
 
-let g:startify_files_number = get(g:, 'startify_files_number', 14)
-let g:startify_enable_special = get(g:, 'startify_enable_special', 1)
-let g:startify_relative_path = get(g:, 'startify_relative_path') ? ':~:.' : ':p:~'
-let s:session_dir = startify#get_session_path()
-let g:startify_transformations = get(g:, 'startify_transformations', [])
+let g:cirque_files_number = get(g:, 'cirque_files_number', 14)
+let g:cirque_enable_special = get(g:, 'cirque_enable_special', 1)
+let g:cirque_relative_path = get(g:, 'cirque_relative_path') ? ':~:.' : ':p:~'
+let s:session_dir = cirque#get_session_path()
+let g:cirque_transformations = get(g:, 'cirque_transformations', [])
 
-let g:startify_skiplist = extend(get(g:, 'startify_skiplist', []), [
+let g:cirque_skiplist = extend(get(g:, 'cirque_skiplist', []), [
             \ 'runtime/doc/.*\.txt$',
             \ 'bundle/.*/doc/.*\.txt$',
             \ 'plugged/.*/doc/.*\.txt$',
@@ -1180,8 +1180,8 @@ let g:startify_skiplist = extend(get(g:, 'startify_skiplist', []), [
             \ escape(fnamemodify(resolve($VIMRUNTIME), ':p'), '\') .'doc/.*\.txt$',
             \ ], 'keep')
 
-let g:startify_padding_top = get(g:, 'startify_padding_top', 6)
-let g:startify_padding_left = get(g:, 'startify_padding_left', 32)
-let s:leftpad = repeat(' ', g:startify_padding_left)
-let s:fixed_column = g:startify_padding_left + 2
+let g:cirque_padding_top = get(g:, 'cirque_padding_top', 6)
+let g:cirque_padding_left = get(g:, 'cirque_padding_left', 32)
+let s:leftpad = repeat(' ', g:cirque_padding_left)
+let s:fixed_column = g:cirque_padding_left + 2
 let s:batchmode = ''
