@@ -12,7 +12,9 @@ let s:ascii = [
       \ ' \_______|\__|\__|       \____$$ | \______/  \_______|',
       \ '                              $$ |                    ',
       \ '                              $$ |                    ',
-      \ '                              \__|                    '
+      \ '                              \__|                    ',
+      \ '                                                      ',
+      \ '                       des rêves                      '
       \ ]
 
 if exists('g:autoloaded_cirque') || &compatible
@@ -1189,7 +1191,7 @@ let g:cirque_skiplist = extend(get(g:, 'cirque_skiplist', []), [
             \ escape(fnamemodify(resolve($VIMRUNTIME), ':p'), '\') .'doc/.*\.txt$',
             \ ], 'keep')
 
-let g:cirque_padding_top = get(g:, 'cirque_padding_top', 4)
+let g:cirque_padding_top = get(g:, 'cirque_padding_top', 3)
 call cirque#center(s:ascii)
 let s:leftpad = repeat(' ', g:cirque_padding_left)
 let s:fixed_column = g:cirque_padding_left + 2
