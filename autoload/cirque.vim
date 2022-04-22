@@ -13,8 +13,6 @@ let s:ascii = [
       \ '                              $$ |                    ',
       \ '                              $$ |                    ',
       \ '                              \__|                    ',
-      \ '                                                      ',
-      \ '                       des rêves                      '
       \ ]
 
 if exists('g:autoloaded_cirque') || &compatible
