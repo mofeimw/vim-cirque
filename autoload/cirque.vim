@@ -86,7 +86,7 @@ function! cirque#insane_in_the_membrane(on_vimenter) abort
     endif
 
     " Must be global so that it can be read by syntax/cirque.vim.
-    let g:cirque_header = s:ascii
+    let g:cirque_header = cirque#center(s:ascii)
 
     for s:i in s:ascii
         let s:ascii[index(s:ascii, s:i)] = s:leftpad . s:i
@@ -1180,8 +1180,8 @@ let g:cirque_skiplist = extend(get(g:, 'cirque_skiplist', []), [
             \ escape(fnamemodify(resolve($VIMRUNTIME), ':p'), '\') .'doc/.*\.txt$',
             \ ], 'keep')
 
-let g:cirque_padding_top = get(g:, 'cirque_padding_top', 6)
-let g:cirque_padding_left = get(g:, 'cirque_padding_left', 32)
+let g:cirque_padding_top = get(g:, 'cirque_padding_top', 4)
+let g:cirque_padding_left = get(g:, 'cirque_padding_left', 27)
 let s:leftpad = repeat(' ', g:cirque_padding_left)
 let s:fixed_column = g:cirque_padding_left + 2
 let s:batchmode = ''
