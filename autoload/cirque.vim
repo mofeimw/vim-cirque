@@ -103,7 +103,7 @@ function! cirque#insane_in_the_membrane(on_vimenter) abort
 
     let s:z = 0
     while s:z <= g:cirque_padding_top
-        call insert(s:ascii, "")
+        call insert(g:cirque_header, "")
         let s:z += 1
     endwhile
 
@@ -1189,7 +1189,7 @@ let g:cirque_skiplist = extend(get(g:, 'cirque_skiplist', []), [
             \ escape(fnamemodify(resolve($VIMRUNTIME), ':p'), '\') .'doc/.*\.txt$',
             \ ], 'keep')
 
-let g:cirque_padding_top = get(g:, 'cirque_padding_top', 3)
+let g:cirque_padding_top = get(g:, 'cirque_padding_top', 1)
 call cirque#center(s:ascii)
 let s:leftpad = repeat(' ', g:cirque_padding_left)
 let s:fixed_column = g:cirque_padding_left + 2
