@@ -141,7 +141,7 @@ function! cirque#insane_in_the_membrane(on_vimenter) abort
 
     if g:cirque_enable_special
         call append('$', ['', s:leftpad .'[e]  <empty buffer>'])
-        call s:register(line('$') - 2, 'e', 'special', 'enew', '')
+        call s:register(line('$') - 2, 'e', 'special', 'enew | source $MYVIMRC', '')
     endif
 
     if g:cirque_enable_special
@@ -439,6 +439,7 @@ function! cirque#open_buffers(...) abort
     endif
 
     enew
+    source $MYVIMRC
     setlocal nobuflisted
 
     " Open all marked entries.
@@ -873,8 +874,8 @@ endfunction
 
 " Function: s:set_mappings {{{1
 function! s:set_mappings() abort
-    nnoremap <buffer><nowait><silent> i             :enew <bar> startinsert<cr>
-    nnoremap <buffer><nowait><silent> <insert>      :enew <bar> startinsert<cr>
+    nnoremap <buffer><nowait><silent> i             :enew <bar> :source $MYVIMRC <bar> startinsert<cr>
+    nnoremap <buffer><nowait><silent> <insert>      :enew <bar> :source $MYVIMRC <bar> startinsert<cr>
     nnoremap <buffer><nowait><silent> b             :call cirque#set_mark('B')<cr>
     nnoremap <buffer><nowait><silent> s             :call cirque#set_mark('S')<cr>
     nnoremap <buffer><nowait><silent> t             :call cirque#set_mark('T')<cr>
@@ -886,7 +887,7 @@ function! s:set_mappings() abort
     nnoremap <buffer><nowait><silent> <cr>          :call cirque#open_buffers()<cr>
     nnoremap <buffer><nowait><silent> <LeftMouse>   :call <sid>leftmouse()<cr>
     nnoremap <buffer><nowait><silent> <2-LeftMouse> :call cirque#open_buffers()<cr>
-    nnoremap <buffer><nowait><silent> <MiddleMouse> :enew <bar> execute 'normal! "'.(v:register=='"'?'*':v:register).'gp'<cr>
+    nnoremap <buffer><nowait><silent> <MiddleMouse> :enew <bar> :source $MYVIMRC <bar> execute 'normal! "'.(v:register=='"'?'*':v:register).'gp'<cr>
 
     " Without these mappings n/N wouldn't work properly, since autocmds always
     " force the cursor back on the index.
