@@ -1164,6 +1164,10 @@ endfunction
 " or just do that
 highlight EndOfBuffer guifg=bg
 
+" hide status line too
+set statusline=\ 
+highlight StatusLine guifg=bg
+
 " Function: s:warn {{{1
 function! s:warn(msg) abort
     echohl WarningMsg
