@@ -119,11 +119,6 @@ function! cirque#insane_in_the_membrane(on_vimenter) abort
                 \ 'tick':      0,
                 \ }
 
-    if g:cirque_enable_special
-        call append('$', [s:leftpad .'[e]  <empty buffer>', ''])
-    endif
-    call s:register(line('$')-1, 'e', 'special', 'enew', '')
-
     let b:cirque.entry_number = 0
     if filereadable('Session.vim')
         call append('$', [s:leftpad .'[0]  '. getcwd() . s:sep .'Session.vim', ''])
@@ -145,22 +140,27 @@ function! cirque#insane_in_the_membrane(on_vimenter) abort
     silent $delete _
 
     if g:cirque_enable_special
-        call append('$', ['', s:leftpad .'[q]  <quit>'])
-        call s:register(line('$'), 'q', 'special', 'call s:close()', '')
-    else
-        " Don't overwrite the last regular entry, thus +1
-        call s:register(line('$')+1, 'q', 'special', 'call s:close()', '')
+        call append('$', ['', s:leftpad .'[e]  <empty buffer>'])
+        call s:register(line('$') - 2, 'e', 'special', 'enew', '')
     endif
 
+    if g:cirque_enable_special
+        call append('$', [s:leftpad .'[q]  <quit>', ''])
+    else
+        " Don't overwrite the last regular entry, thus +1
+        call s:register(line('$') + 1, 'q', 'special', 'call s:close()', '')
+    endif
+    call s:register(line('$') - 1, 'q', 'special', 'call s:close()', '')
+
     " compute first line offset
-    let b:cirque.firstline = 2
+    let b:cirque.firstline = 4
     let b:cirque.firstline += len(g:cirque_header)
     " no special, no local Session.vim, but a section header
     if !g:cirque_enable_special && !exists('l:show_session') && has_key(lists[0], 'header')
         let b:cirque.firstline += len(lists[0].header) + 1
     endif
 
-    let b:cirque.lastline = line('$')
+    let b:cirque.lastline = line('$') - 1
 
     let footer = exists('g:cirque_custom_footer')
                 \ ? s:set_custom_section(g:cirque_custom_footer)
