@@ -1168,6 +1168,9 @@ highlight EndOfBuffer guifg=bg
 set statusline=\ 
 highlight StatusLine guifg=bg
 
+" disable mouse highlight
+set mouse=n
+
 " Function: s:warn {{{1
 function! s:warn(msg) abort
     echohl WarningMsg
